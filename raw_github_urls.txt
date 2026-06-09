@@ -1,0 +1,96 @@
+# Root directory
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/.gitmodules
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/README.md
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/verify_cross_script.py
+
+# FeatureFlow/
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FeatureFlow/FeatureFlow.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FeatureFlow/README.md
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FeatureFlow/requirements.txt
+
+# FeatureFlow/lib/
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FeatureFlow/lib/__init__.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FeatureFlow/lib/analyze.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FeatureFlow/lib/change_plan.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FeatureFlow/lib/feature_inventory.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FeatureFlow/lib/fontcore_path.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FeatureFlow/lib/io_paths.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FeatureFlow/lib/mac_prune.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FeatureFlow/lib/models.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FeatureFlow/lib/orphans.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FeatureFlow/lib/preflight.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FeatureFlow/lib/reflow.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FeatureFlow/lib/relabel.py
+
+# FeatureFlow/tests/
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FeatureFlow/tests/test_reflow_plan.py
+
+# FvarFlow/
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FvarFlow/FvarFlow.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FvarFlow/requirements.txt
+
+# FvarFlow/lib/
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FvarFlow/lib/__init__.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FvarFlow/lib/fontcore_path.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FvarFlow/lib/fvar_analysis.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FvarFlow/lib/fvar_models.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FvarFlow/lib/fvar_report.py
+
+# FvarFlow/tests/
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/FvarFlow/tests/test_fvar_coverage.py
+
+# NameFlow/
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/NameFlow/NameFlow.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/NameFlow/requirements.txt
+
+# NameFlow/lib/
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/NameFlow/lib/__init__.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/NameFlow/lib/fontcore_path.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/NameFlow/lib/name_analysis.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/NameFlow/lib/name_models.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/NameFlow/lib/name_report.py
+
+# NameFlow/tests/
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/NameFlow/tests/test_name_attribution.py
+
+# StatFlow/
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/StatFlow/StatFlow.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/StatFlow/requirements.txt
+
+# StatFlow/lib/
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/StatFlow/lib/__init__.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/StatFlow/lib/fontcore_path.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/StatFlow/lib/stat_analysis.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/StatFlow/lib/stat_axis_registry.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/StatFlow/lib/stat_models.py
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/StatFlow/lib/stat_report.py
+
+# StatFlow/tests/
+https://raw.githubusercontent.com/andrewsipe/VarFlow/main/StatFlow/tests/test_stat_analysis.py
+
+# FontCore/
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/CoreDemoTool.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/README.md
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/__init__.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/core_console_config.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/core_console_styles.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/core_error_handling.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/core_file_collector.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/core_filename_parts_parser.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/core_font_extension.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/core_font_metadata.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/core_font_sorter.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/core_font_style_dictionaries.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/core_font_utils.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/core_gpos_repair.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/core_logging_config.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/core_name_policies.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/core_nameid_allocator.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/core_nameid_replacer_base.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/core_namerecord_matcher.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/core_ot_label_scanner.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/core_stat_builder.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/core_string_utils.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/core_ttx_table_io.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/core_variable_font_detection.py
+https://raw.githubusercontent.com/andrewsipe/FontCore/main/requirements.txt

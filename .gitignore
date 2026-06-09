@@ -14,7 +14,7 @@ venv/
 .mypy_cache/
 .ruff_cache/
 
-# Local FontCore symlink (submodule on GitHub)
+# FontCore at suite root only (submodule on GitHub; symlink in monorepo)
 FontCore
 
 # Editor

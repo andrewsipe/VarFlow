@@ -1,3 +1,6 @@
+# FontCore is at VarFlow root only — do not symlink here
+FontCore
+
 __pycache__/
 *.py[cod]
 .pytest_cache/

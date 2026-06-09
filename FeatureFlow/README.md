@@ -8,15 +8,12 @@ When you run without `--report-only`, fonts that need **no** Mac prune, reflow, 
 
 ## Setup
 
-From the monorepo, `FontCore` is a symlink to the shared library:
+FontCore lives at the **VarFlow repo root** (`../FontCore` from here). See the [VarFlow README](../README.md) for clone and monorepo setup — do not add a separate FontCore symlink in this directory.
 
 ```bash
-cd FeatureFlow
-ln -sf ../../FontCore FontCore   # if missing
+cd VarFlow/FeatureFlow
 pip install -r requirements.txt
 ```
-
-For a standalone clone, place this repo beside [FontCore](https://github.com/andrewsipe/FontCore.git) or use `git submodule add` instead of the symlink.
 
 ## Usage
 
@@ -66,4 +63,4 @@ python -m pytest tests -q
 
 ## Related
 
-- [FontCore](../../FontCore/) — `scan_ot_label_nameids`, `audit_nameids`, console and file helpers
+- [FontCore](../FontCore/) (suite root) — `scan_ot_label_nameids`, `audit_nameids`, console and file helpers

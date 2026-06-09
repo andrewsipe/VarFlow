@@ -1,4 +1,4 @@
-"""Locate the repo root that contains FontCore and add it to sys.path (once)."""
+"""Resolve FontCore via the VarFlow suite root (walk up until ``FontCore/`` exists)."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ _done: Path | None = None
 
 
 def ensure_fontcore_on_path(start: Path | None = None) -> Path:
-    """Walk upward from ``start`` until ``FontCore`` exists; insert that dir on sys.path."""
+    """Walk upward until ``FontCore/`` exists (suite root); insert parent on sys.path once."""
     global _done
     origin = Path(start).resolve() if start is not None else Path(__file__).resolve().parent
     repo = origin
