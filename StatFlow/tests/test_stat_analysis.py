@@ -115,6 +115,78 @@ class TestStatAnalysis:
         types = {f.flag_type for f in analysis.required_flags}
         assert "nameID_below_256" in types
 
+    def test_format1_advisory_once_per_axis(self):
+        font = _minimal_vf()
+        _add_stat_wght(font)
+        stat = font["STAT"].table
+        for value, nid in ((100.0, 257), (700.0, 259), (900.0, 260)):
+            av = otTables.AxisValue()
+            av.Format = 1
+            av.AxisIndex = 0
+            av.Flags = 0
+            av.ValueNameID = nid
+            av.Value = value
+            _set_win_name(font, nid, f"Weight {int(value)}")
+            stat.AxisValueArray.AxisValue.append(av)
+        analysis = analyze_stat(Path("test.ttf"), font)
+        f1_flags = [
+            f for f in analysis.advisory_flags if f.flag_type == "format1_where_format3_expected"
+        ]
+        assert len(f1_flags) == 1
+        assert "4 of 4" in f1_flags[0].detail
+
+    def test_shared_name_id_summary(self):
+        font = _minimal_vf()
+        _add_stat_wght(font)
+        stat = font["STAT"].table
+        for value, nid in ((100.0, 257), (700.0, 259)):
+            av = otTables.AxisValue()
+            av.Format = 1
+            av.AxisIndex = 0
+            av.Flags = 0
+            av.ValueNameID = nid
+            av.Value = value
+            _set_win_name(font, nid, f"W{int(value)}")
+            stat.AxisValueArray.AxisValue.append(av)
+        inst = font["fvar"].instances[0]
+        inst.subfamilyNameID = 257
+        analysis = analyze_stat(Path("test.ttf"), font)
+        summary = [
+            f for f in analysis.advisory_flags if f.flag_type == "shared_name_id_summary"
+        ]
+        per_id = [f for f in analysis.advisory_flags if f.flag_type == "shared_name_id"]
+        assert len(summary) == 1
+        assert len(per_id) == 0
+        assert "257" in summary[0].detail
+
+    def test_shared_name_id_internal(self):
+        font = _minimal_vf()
+        _set_win_name(font, 258, "Italic")
+        stat = otTables.STAT()
+        stat.Version = 0x00010002
+        design = otTables.AxisRecordArray()
+        ax = otTables.AxisRecord()
+        ax.AxisTag = "ital"
+        ax.AxisNameID = 258
+        ax.AxisOrdering = 0
+        design.Axis = [ax]
+        stat.DesignAxisRecord = design
+        av = otTables.AxisValue()
+        av.Format = 1
+        av.AxisIndex = 0
+        av.Flags = 0
+        av.ValueNameID = 258
+        av.Value = 1.0
+        av_array = otTables.AxisValueArray()
+        av_array.AxisValue = [av]
+        stat.AxisValueArray = av_array
+        t = newTable("STAT")
+        t.table = stat
+        font["STAT"] = t
+        analysis = analyze_stat(Path("test.ttf"), font)
+        types = {f.flag_type for f in analysis.advisory_flags}
+        assert "shared_name_id_internal" in types
+
     def test_fvar_axis_not_in_stat_advisory(self):
         font = _minimal_vf()
         axes = [("wght", 100, 400, 900, "Weight"), ("ital", 0, 0, 1, "Italic")]

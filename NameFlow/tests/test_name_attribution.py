@@ -75,6 +75,40 @@ class TestNameAttribution:
         assert rec.status == NameRecordStatus.SHARED
         assert NameIDSource.FVAR_INSTANCE in rec.sources
 
+    def test_elidable_value_sharing_is_ok(self):
+        from fontTools.ttLib import newTable
+        from fontTools.ttLib.tables import otTables
+
+        font = _minimal_font()
+        _set_win_name(font, 272, "Regular")
+        stat = otTables.STAT()
+        stat.Version = 0x00010002
+        design = otTables.AxisRecordArray()
+        ax = otTables.AxisRecord()
+        ax.AxisTag = "wght"
+        ax.AxisNameID = 256
+        ax.AxisOrdering = 0
+        design.Axis = [ax]
+        stat.DesignAxisRecord = design
+        av = otTables.AxisValue()
+        av.Format = 1
+        av.AxisIndex = 0
+        av.Flags = 0
+        av.ValueNameID = 272
+        av.Value = 400.0
+        av_array = otTables.AxisValueArray()
+        av_array.AxisValue = [av]
+        stat.AxisValueArray = av_array
+        stat.ElidedFallbackNameID = 272
+        t = newTable("STAT")
+        t.table = stat
+        font["STAT"] = t
+        analysis = analyze_name(Path("t.ttf"), font)
+        rec = next(r for r in analysis.records if r.name_id == 272)
+        assert rec.status == NameRecordStatus.OK
+        assert not rec.is_shared
+        assert analysis.shared_count == 0
+
     def test_missing_referenced_id(self):
         font = _minimal_font()
         from fontTools.ttLib import newTable

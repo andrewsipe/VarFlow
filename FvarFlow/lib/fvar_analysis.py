@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import Counter
 from pathlib import Path
 from typing import Dict, List, Optional, Set
 
@@ -185,18 +186,6 @@ def _run_validation(analysis: FvarAnalysis, font: TTFont, stat_index: Dict[str, 
                     )
                 )
 
-        if not inst.stat_coverage.covered and stat_index:
-            missing = ", ".join(inst.stat_coverage.missing_axes)
-            analysis.advisory_flags.append(
-                FvarFlag(
-                    severity="advisory",
-                    flag_type="instance_missing_stat_coverage",
-                    instance_index=inst.index,
-                    detail=f"STAT has no matching value for axis(es): {missing}.",
-                    guidance="Add STAT AxisValue entries for uncovered coordinates.",
-                )
-            )
-
         for tag, coord in inst.coordinates.items():
             axis_coords.setdefault(tag, []).append(coord)
             lo, hi = axis_ranges.get(tag, (None, None))
@@ -212,6 +201,22 @@ def _run_validation(analysis: FvarAnalysis, font: TTFont, stat_index: Dict[str, 
                             guidance="Correct instance coordinates to fall within axis min/max.",
                         )
                     )
+
+    if stat_index:
+        coverage_patterns: Counter = Counter()
+        for inst in analysis.instances:
+            if not inst.stat_coverage.covered:
+                coverage_patterns[frozenset(inst.stat_coverage.missing_axes)] += 1
+        for missing_axes_set, count in coverage_patterns.items():
+            missing = ", ".join(sorted(missing_axes_set))
+            analysis.advisory_flags.append(
+                FvarFlag(
+                    severity="advisory",
+                    flag_type="instance_missing_stat_coverage",
+                    detail=f"{count} instance(s) missing STAT coverage for: {missing}.",
+                    guidance="Add STAT AxisValue entries for uncovered coordinates.",
+                )
+            )
 
     if analysis.axes and not analysis.instances:
         analysis.advisory_flags.append(

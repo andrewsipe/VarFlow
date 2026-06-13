@@ -102,7 +102,11 @@ def emit_name_report(analysis: NameAnalysis) -> None:
         s = sorted(set(ids))
         if len(s) == 1:
             return f"1 ({s[0]})"
-        return f"{len(s)} ({s[0]}–{s[-1]})"
+        contiguous = s == list(range(s[0], s[-1] + 1))
+        span = f"{s[0]}–{s[-1]}"
+        if contiguous:
+            return f"{len(s)} ({span})"
+        return f"{len(s)} ({span}, non-contiguous)"
 
     cs.emit(f"  OT feature IDs:   {_range_str(ot_ids)}", console=console)
     cs.emit(f"  STAT IDs:        {_range_str(stat_ids)}", console=console)

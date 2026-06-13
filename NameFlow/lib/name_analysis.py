@@ -141,6 +141,9 @@ def _classify_status(
     non_std = sources - {NameIDSource.STANDARD}
     if name_id > 255 and not non_std:
         return NameRecordStatus.ORPHAN
+    elidable_value_pair = {NameIDSource.STAT_ELIDABLE, NameIDSource.STAT_VALUE}
+    if non_std == elidable_value_pair:
+        return NameRecordStatus.OK
     if len(non_std) > 1 or (non_std and NameIDSource.STANDARD in sources):
         return NameRecordStatus.SHARED
     return NameRecordStatus.OK

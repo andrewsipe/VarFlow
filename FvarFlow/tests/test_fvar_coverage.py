@@ -104,3 +104,35 @@ class TestFvarCoverage:
         analysis = analyze_fvar(Path("t.ttf"), font)
         types = {f.flag_type for f in analysis.required_flags}
         assert "coordinate_out_of_range" in types
+
+    def test_missing_stat_coverage_deduped(self):
+        fb = FontBuilder(1024, isTTF=True)
+        fb.setupGlyphOrder([".notdef"])
+        fb.setupCharacterMap({})
+        fb.setupGlyf({".notdef": glyf_module.Glyph()})
+        fb.setupHorizontalMetrics({".notdef": (600, 0)})
+        fb.setupHorizontalHeader(ascent=800, descent=-200)
+        fb.setupOS2()
+        fb.setupPost()
+        fb.setupNameTable({"familyName": "Test", "styleName": "Regular"})
+        axes = [("wght", 100, 400, 900, "Weight"), ("ital", 0, 0, 1, "Italic")]
+        instances = [
+            {"location": {"wght": 400, "ital": 0}, "stylename": "Thin"},
+            {"location": {"wght": 400, "ital": 0}, "stylename": "Regular"},
+            {"location": {"wght": 400, "ital": 0}, "stylename": "Bold"},
+        ]
+        fb.setupFvar(axes, instances)
+        font = fb.font
+        for i, nid in enumerate((257, 258, 259), start=1):
+            _set_win_name(font, nid, ["Thin", "Regular", "Bold"][i - 1])
+            font["fvar"].instances[i - 1].subfamilyNameID = nid
+        _add_stat_format1(font, 400.0)
+        analysis = analyze_fvar(Path("t.ttf"), font)
+        cov_flags = [
+            f
+            for f in analysis.advisory_flags
+            if f.flag_type == "instance_missing_stat_coverage"
+        ]
+        assert len(cov_flags) == 1
+        assert "3 instance(s)" in cov_flags[0].detail
+        assert "ital" in cov_flags[0].detail

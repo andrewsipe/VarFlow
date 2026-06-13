@@ -102,7 +102,15 @@ def emit_fvar_report(analysis: FvarAnalysis) -> None:
     else:
         cs.emit(f"Named instances ({len(analysis.instances)})", console=console)
         for inst in analysis.instances:
-            cs.emit(f"  {inst.index} {inst.name_en} nameID={inst.name_id}", console=console)
+            coord_str = " ".join(
+                f"{k}={v:g}" for k, v in sorted(inst.coordinates.items())
+            )
+            coverage = "full" if inst.stat_coverage.covered else _coverage_label(inst)
+            cs.emit(
+                f"  {inst.index} {inst.name_en or '──'} nameID={inst.name_id}  "
+                f"[{coord_str}]  coverage={coverage}",
+                console=console,
+            )
 
     cs.emit("", console=console)
     _emit_flags("Required flags", analysis.required_flags)

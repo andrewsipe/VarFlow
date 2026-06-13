@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set
 
 from fontTools.ttLib import TTFont
 
@@ -131,17 +131,6 @@ def _format3_missing_linked(av: StatAxisValue) -> bool:
     return False
 
 
-def _axis_value_range(av: StatAxisValue) -> Tuple[Optional[float], Optional[float]]:
-    if av.format == 2 and av.range_min is not None and av.range_max is not None:
-        return av.range_min, av.range_max
-    if av.value is not None:
-        return av.value, av.value
-    if av.format == 4 and av.axis_value_pairs:
-        vals = list(av.axis_value_pairs.values())
-        return min(vals), max(vals)
-    return None, None
-
-
 def _run_validation(
     analysis: StatAnalysis,
     font: TTFont,
@@ -227,40 +216,82 @@ def _run_validation(
                     )
                 )
 
-        conv = convention_for_tag(av.axis_tag) if av.axis_tag else None
-        if conv:
-            lo, hi = _axis_value_range(av)
-            if lo is not None and hi is not None:
-                if lo < conv.expected_min - COORD_TOLERANCE or hi > conv.expected_max + COORD_TOLERANCE:
-                    analysis.advisory_flags.append(
-                        StatFlag(
-                            severity="advisory",
-                            flag_type="nonstandard_axis_range",
-                            axis_tag=av.axis_tag,
-                            name_id=av.name_id,
-                            detail=(
-                                f"{conv.full_name} value range {lo:g}–{hi:g} is outside "
-                                f"conventional {conv.expected_min:g}–{conv.expected_max:g}."
-                            ),
-                            guidance="No action required — may be intentional.",
-                        )
-                    )
-            if av.format == 1 and 3 in conv.typical_formats:
+    stat_axis_set = {ax.tag for ax in analysis.axes}
+
+    # Per-axis: conventional range from fvar min/max (not per discrete STAT value)
+    if "fvar" in font:
+        for ax in analysis.axes:
+            fvar_ax = next((a for a in font["fvar"].axes if a.axisTag == ax.tag), None)
+            if fvar_ax is None:
+                continue
+            conv = convention_for_tag(ax.tag)
+            if not conv:
+                continue
+            min_v = float(fvar_ax.minValue)
+            max_v = float(fvar_ax.maxValue)
+            if (
+                min_v < conv.expected_min - COORD_TOLERANCE
+                or max_v > conv.expected_max + COORD_TOLERANCE
+            ):
                 analysis.advisory_flags.append(
                     StatFlag(
                         severity="advisory",
-                        flag_type="format1_where_format3_expected",
-                        axis_tag=av.axis_tag,
-                        name_id=av.name_id,
-                        detail=f"Format 1 on {av.axis_tag} where Format 3 is conventional.",
-                        guidance=(
-                            "A linked value could be added to connect this entry to its "
-                            "counterpart in the companion style (Roman/Italic or Upright/Condensed)."
+                        flag_type="nonstandard_axis_range",
+                        axis_tag=ax.tag,
+                        detail=(
+                            f"{conv.full_name} axis range {min_v:g}–{max_v:g} is outside "
+                            f"conventional {conv.expected_min:g}–{conv.expected_max:g}."
                         ),
+                        guidance="No action required — may be intentional.",
                     )
                 )
 
-    stat_axis_set = {ax.tag for ax in analysis.axes}
+    # Per-axis: Format 1 where Format 3 is conventional (once per axis tag)
+    for ax in analysis.axes:
+        conv = convention_for_tag(ax.tag)
+        if not conv or 3 not in conv.typical_formats:
+            continue
+        axis_values_on_tag = [
+            av for av in analysis.axis_values if av.axis_tag == ax.tag
+        ]
+        f1_count = sum(1 for av in axis_values_on_tag if av.format == 1)
+        if not f1_count:
+            continue
+        total = len(axis_values_on_tag)
+        analysis.advisory_flags.append(
+            StatFlag(
+                severity="advisory",
+                flag_type="format1_where_format3_expected",
+                axis_tag=ax.tag,
+                detail=(
+                    f"{f1_count} of {total} values on {ax.tag} use Format 1 "
+                    f"where Format 3 is conventional."
+                ),
+                guidance=(
+                    "A linked value could be added to connect entries to their "
+                    "counterpart in the companion style (Roman/Italic or Upright/Condensed)."
+                ),
+            )
+        )
+
+    # STAT-internal: axis name ID reused by an axis value on the same tag
+    axis_name_by_id = {ax.name_id: ax.tag for ax in analysis.axes}
+    value_name_ids = {av.name_id for av in analysis.axis_values}
+    for nid in sorted(set(axis_name_by_id) & value_name_ids):
+        ax_tag = axis_name_by_id[nid]
+        analysis.advisory_flags.append(
+            StatFlag(
+                severity="advisory",
+                flag_type="shared_name_id_internal",
+                axis_tag=ax_tag,
+                name_id=nid,
+                detail=(
+                    f"nameID {nid} is used for both the axis name and an axis value on {ax_tag}."
+                ),
+                guidance="Assign separate nameIDs for axis names and axis values.",
+            )
+        )
+
     if "ital" in stat_axis_set and "slnt" in stat_axis_set:
         analysis.advisory_flags.append(
             StatFlag(
@@ -335,16 +366,20 @@ def _run_validation(
         )
 
     shared: Set[int] = set(analysis.stat_name_ids) & fvar_name_ids
-    for nid in sorted(shared):
-        if nid in {ax.name_id for ax in analysis.axes}:
-            continue
+    axis_name_ids = {ax.name_id for ax in analysis.axes}
+    value_shared = shared - axis_name_ids
+    if value_shared:
+        preview = ", ".join(str(n) for n in sorted(value_shared)[:5])
+        if len(value_shared) > 5:
+            preview = f"{preview}…"
         analysis.advisory_flags.append(
             StatFlag(
                 severity="advisory",
-                flag_type="shared_name_id",
-                name_id=nid,
-                detail=f"nameID {nid} is used by both STAT and fvar.",
-                guidance="Full cross-table analysis is NameFlow's job; consider dedicated IDs.",
+                flag_type="shared_name_id_summary",
+                detail=(
+                    f"{len(value_shared)} STAT value nameID(s) also used by fvar: {preview}."
+                ),
+                guidance="Run NameFlow for complete cross-table sharing analysis.",
             )
         )
 
